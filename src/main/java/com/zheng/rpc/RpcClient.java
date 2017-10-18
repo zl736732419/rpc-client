@@ -10,17 +10,16 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * 远程调用客户端
  * Created by zhenglian on 2017/10/17.
  */
 public class RpcClient extends SimpleChannelInboundHandler<RpcResponse>  {
-    private CountDownLatch latch;
     private String host;
     private Integer port;
 
+    private Object object = new Object();
+    
     /**
      * 响应结果
      */
@@ -37,7 +36,6 @@ public class RpcClient extends SimpleChannelInboundHandler<RpcResponse>  {
      * @return
      */
     public RpcResponse send(RpcRequest request) {
-        latch = new CountDownLatch(1); // 这里为了同步阻塞获取调用结果
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -56,7 +54,9 @@ public class RpcClient extends SimpleChannelInboundHandler<RpcResponse>  {
             ChannelFuture future = bootstrap.connect(host, port).sync();
             //将request对象写入outbundle处理后发出（即RpcEncoder编码器）
             future.channel().writeAndFlush(request).sync();
-            latch.await(); // 同步阻塞等待调用结果
+            synchronized (object) {// 同步阻塞等待调用结果
+                object.wait();
+            }
             if (response != null) {
                 future.channel().closeFuture().sync();
             }
@@ -71,6 +71,8 @@ public class RpcClient extends SimpleChannelInboundHandler<RpcResponse>  {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
         this.response = msg;
-        latch.countDown();
+        synchronized (object) {
+            object.notifyAll();
+        }
     }
 }
