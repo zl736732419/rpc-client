@@ -48,6 +48,9 @@ public class RpcProxy {
                         if (Optional.ofNullable(serviceDiscovery).isPresent()) {
                             serverAddress = serviceDiscovery.discover();
                         }
+                        if (!Optional.ofNullable(serverAddress).isPresent()) {
+                            throw new RuntimeException("当前没有可用的服务器在线...");
+                        }
                         //随机获取服务的地址
                         String[] array = serverAddress.split(":");
                         String host = array[0];

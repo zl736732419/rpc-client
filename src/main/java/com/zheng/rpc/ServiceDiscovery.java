@@ -9,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.spi.ServiceRegistry;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
@@ -56,15 +54,18 @@ public class ServiceDiscovery {
     public String discover() {
         String data = null;
         int size = servers.size();
+        List<String> keys = new ArrayList<>(servers.keySet());
         // 存在新节点，使用即可
         if (size > 0) {
+            String key;
             if (size == 1) {
-                data = servers.get(0).toString();
+                key = keys.get(0);
                 logger.debug("using only data: {}", data);
             } else {
-                data = servers.get(ThreadLocalRandom.current().nextInt(size)).toString();
+                key = keys.get(ThreadLocalRandom.current().nextInt(size));
                 logger.debug("using random data: {}", data);
             }
+            data = servers.get(key).toString();
         }
         return data;
     }
