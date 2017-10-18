@@ -40,7 +40,7 @@ public class RpcProxy {
                         //创建RpcRequest，封装被代理类的属性
                         RpcRequest request = new RpcRequest();
                         request.setRequestId(UUID.randomUUID().toString());
-                        request.setClassName(method.getDeclaringClass().getName());
+                        request.setClassName(method.getDeclaringClass().getSimpleName());
                         request.setMethodName(method.getName());
                         request.setParameterTypes(method.getParameterTypes());
                         request.setParameters(args);
