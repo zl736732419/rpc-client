@@ -59,6 +59,9 @@ public class RpcProxy {
                         RpcClient client = new RpcClient(host, port);
                         //通过netty向服务端发送请求
                         RpcResponse response = client.send(request);
+                        if (!Optional.ofNullable(response).isPresent()) {
+                            throw new RuntimeException("调用失败，没有获取到数据");
+                        }
                         //返回信息
                         if (response.isError()) {
                             throw response.getError();
