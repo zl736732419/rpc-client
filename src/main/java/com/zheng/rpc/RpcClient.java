@@ -70,7 +70,7 @@ public class RpcClient extends SimpleChannelInboundHandler<RpcResponse>  {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
-        this.response = response;
+        this.response = msg;
         latch.countDown();
     }
 }
